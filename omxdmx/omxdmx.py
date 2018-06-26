@@ -15,7 +15,7 @@ class dmxMock(pysimpledmx.DMXConnection):
     def ramp(self, channels, steps, duration):
         self.logger.info("Mock DMX ramp method")
         mix = list(zip(channels, steps))
-        self.logger.info(f"Channels and Steps: {mix}")
+        self.logger.info("Channels and Steps: {}".format(mix))
         self.logger.info("Duration: {}".format(duration))
 
 class OmxDmx(Thread):

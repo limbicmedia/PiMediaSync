@@ -9,7 +9,7 @@ cd $HOMEDIR
 
 PIHOSTNAME="${PIHOSTNAME:-miniworld-sawmill}"
 echo "Setting HOSTNAME to $PIHOSTNAME"
-echo "PIHOSTNAME" > /etc/hostname
+echo "$PIHOSTNAME" > /etc/hostname
 
 apt-get update
 apt-get install -y git vim python3 python3-pip omxplayer

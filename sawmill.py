@@ -29,7 +29,7 @@ def buttonSetup(pin, event, bouncetime=10):
     GPIO.setmode(GPIO.BOARD) # Use physical pin numbering
     GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-    buttoncb = lambda event=event: buttonCallback(event) # hack to get args into button function
+    buttoncb = lambda threadChannel, event=event: buttonCallback(event) # hack to get args into button function
     buttonHandlerCb = buttonhandler.ButtonHandler(
         pin, buttoncb, edge='falling', bouncetime=bouncetime)
     buttonHandlerCb.start()
