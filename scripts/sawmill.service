@@ -1,0 +1,13 @@
+[Unit]
+Description=display for miniature world, plays video and syncs lights. Starts on boot.
+After=multi-user.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=3
+WorkingDirectory=/root/mini-world-sawmill-display
+ExecStart=/usr/bin/python3 sawmill.py
+
+[Install]
+WantedBy=multi-user.target

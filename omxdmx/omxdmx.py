@@ -123,7 +123,7 @@ class OmxDmx(Thread):
         '''
 
         player = OMXPlayer(filename, 
-                dbus_name='org.mpris.MediaPlayer2.omxplayer1', args=['-b'])
+                dbus_name='org.mpris.MediaPlayer2.omxplayer1', args=['-b', '-o', 'both'])
         player.playEvent += lambda _: logger.debug("Play")
         player.pauseEvent += lambda _: logger.debug("Pause")
         player.stopEvent += lambda _: logger.debug("Stop")
