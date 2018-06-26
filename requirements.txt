@@ -1,0 +1,2 @@
+omxplayer-wrapper==0.2.5
+RPi.GPIO==0.6.3
