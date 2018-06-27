@@ -16,7 +16,7 @@ def buttonCallback(buttonEvent):
         player_log.debug("Button Pressed")
         buttonEvent.set()
 
-def buttonSetup(pin, event, bouncetime=10):
+def buttonSetup(pin, pull_up_down, event, bouncetime=10):
     '''
     Simple helper function to get all button stuff setup
     including the button callback.
@@ -27,7 +27,7 @@ def buttonSetup(pin, event, bouncetime=10):
 
     GPIO.setwarnings(False) # Ignore warning for now
     GPIO.setmode(GPIO.BOARD) # Use physical pin numbering
-    GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(pin, GPIO.IN, pull_up_down=pull_up_down)
 
     buttoncb = lambda threadChannel, event=event: buttonCallback(event) # hack to get args into button function
     buttonHandlerCb = buttonhandler.ButtonHandler(
@@ -63,7 +63,8 @@ if __name__ == "__main__":
     buttonEvent = Event()
     omxDmxThread = omxdmx.OmxDmx(buttonEvent, killEvent, Config)
     
-    buttonSetup(10, buttonEvent, bouncetime=100)
+    buttonSetup(Config.GPIO_VALUES['pin'], Config.GPIO_VALUES['pull_up_down'], 
+        buttonEvent, bouncetime=100)
 
     try:
         omxDmxThread.start()

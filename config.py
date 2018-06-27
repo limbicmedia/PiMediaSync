@@ -1,7 +1,14 @@
+import RPi.GPIO as GPIO
+
 class Config():
     VIDEONAME = "./video/SAWMILL.mp4"
     DMX_DEVICE = "/dev/ttyUSB0"
     
+    GPIO_VALUES = {
+        'pin': 10,
+        'pull_up_down': GPIO.PUD_DOWN
+        }
+
     NUM_CHANNELS = 10
     DEFAULT_VALUE = 255
     LIGHTING_SEQUENCE = [
