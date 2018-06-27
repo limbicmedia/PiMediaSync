@@ -2,6 +2,8 @@ class Config():
     VIDEONAME = "./video/SAWMILL.mp4"
     DMX_DEVICE = "/dev/ttyUSB0"
     
+    NUM_CHANNELS = 10
+    DEFAULT_VALUE = 255
     LIGHTING_SEQUENCE = [
         {
             'dmx_levels': [255, 0, 0, 0, 0, 0, 0, 0, 0, 0],

@@ -2,6 +2,7 @@ from threading import Event, Thread
 import logging
 from time import sleep
 
+from config import Config
 from omxplayer.player import OMXPlayer, OMXPlayerDeadError
 import pysimpledmx
 
@@ -36,6 +37,11 @@ class OmxDmx(Thread):
         except Exception as e:
             self.logger.exception("DMX device failure, creating mock device")
             self.dmx = dmxMock()
+
+        # turn all lights on at start
+        channels = list(range(1, Config.NUM_CHANNELS + 1))
+        default_val = [Config.DEFAULT_VALUE] * Config.NUM_CHANNELS
+        self.dmx.ramp(channels, default_val, 1)
 
     def run(self):
         '''
@@ -78,7 +84,7 @@ class OmxDmx(Thread):
                         break
 
                     # handle DMX
-                    channels = list(range(1, 11)) # could be default in future
+                    channels = list(range(1, Config.NUM_CHANNELS + 1))
                     self.dmx.ramp(channels, steps['dmx_levels'], steps['dmx_transition'])
 
                     sleeptime = steps['end_time'] - self.player.position()
