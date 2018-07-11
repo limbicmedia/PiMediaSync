@@ -39,9 +39,9 @@ class OmxDmx(Thread):
             self.dmx = dmxMock()
 
         # turn all lights on at start
-        self.channels = Config.CHANNELS
-        default_val = [Config.DEFAULT_VALUE] * len(self.channels)
-        self.dmx.ramp(self.channels, default_val, 1)
+        self.dmxChannels = Config.CHANNELS
+        self.dmxDefaultVals = [Config.DEFAULT_VALUE] * len(self.dmxChannels)
+        self.dmx.ramp(self.dmxChannels, self.dmxDefaultVals, 1)
 
     def run(self):
         '''
@@ -84,14 +84,16 @@ class OmxDmx(Thread):
                         break
 
                     # handle DMX
-                    self.dmx.ramp(self.channels, steps['dmx_levels'], steps['dmx_transition'])
+                    self.dmx.ramp(self.dmxChannels, steps['dmx_levels'], steps['dmx_transition'])
 
                     sleeptime = steps['end_time'] - self.player.position()
                     # exit thread on kill event
                     if(self.killEvent.wait(sleeptime)):
                         self.killThread()
                         break
-
+                
+                self.dmx.ramp(self.dmxChannels, self.dmxDefaultVals, 1)
+                
                 self.buttonEvent.clear()
                 self.player.pause()
                 self.player.hide_video()
