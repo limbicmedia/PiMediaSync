@@ -9,8 +9,8 @@ class Config():
         'pull_up_down': GPIO.PUD_DOWN
         }
 
-    NUM_CHANNELS = 10
     DEFAULT_VALUE = 255
+    CHANNELS = [25, 26, 27, 22, 23, 24, 19, 20, 21, 16] # order of DMX channels
     LIGHTING_SEQUENCE = [
         {
             'dmx_levels': [255, 0, 0, 0, 0, 0, 0, 0, 0, 0],

@@ -27,7 +27,7 @@ class OmxDmx(Thread):
         self.killEvent = killEvent
 
         self.player = self.playerFactory(Config.VIDEONAME, self.logger)
-        self.data = Config.LIGHTING_SEQUENCE
+        self.sequence = Config.LIGHTING_SEQUENCE
 
         self.running = True
         self.playing = False
@@ -39,9 +39,9 @@ class OmxDmx(Thread):
             self.dmx = dmxMock()
 
         # turn all lights on at start
-        channels = list(range(1, Config.NUM_CHANNELS + 1))
-        default_val = [Config.DEFAULT_VALUE] * Config.NUM_CHANNELS
-        self.dmx.ramp(channels, default_val, 1)
+        self.channels = Config.CHANNELS
+        default_val = [Config.DEFAULT_VALUE] * len(self.channels)
+        self.dmx.ramp(self.channels, default_val, 1)
 
     def run(self):
         '''
@@ -68,7 +68,7 @@ class OmxDmx(Thread):
                     sys.exit(1)
 
                 self.playFromBeginning()
-                for steps in self.data:
+                for steps in self.sequence:
                     try:
                         self.player.playback_status()
                     except OMXPlayerDeadError as e:
@@ -84,8 +84,7 @@ class OmxDmx(Thread):
                         break
 
                     # handle DMX
-                    channels = list(range(1, Config.NUM_CHANNELS + 1))
-                    self.dmx.ramp(channels, steps['dmx_levels'], steps['dmx_transition'])
+                    self.dmx.ramp(self.channels, steps['dmx_levels'], steps['dmx_transition'])
 
                     sleeptime = steps['end_time'] - self.player.position()
                     # exit thread on kill event
