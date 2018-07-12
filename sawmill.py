@@ -33,7 +33,7 @@ def buttonSetup(pin, pull_up_down, event, bouncetime=10):
     buttonHandlerCb = buttonhandler.ButtonHandler(
         pin, buttoncb, edge='falling', bouncetime=bouncetime)
     buttonHandlerCb.start()
-    GPIO.add_event_detect(pin, GPIO.RISING, callback=buttonHandlerCb)
+    GPIO.add_event_detect(pin, GPIO.FALLING, callback=buttonHandlerCb)
 
 
 if __name__ == "__main__":

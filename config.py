@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 
 class Config():
-    VIDEONAME = "./video/SAWMILL.mp4"
+    VIDEONAME = "./video/sawmill.mov"
     DMX_DEVICE = "/dev/ttyUSB0"
     
     GPIO_VALUES = {
@@ -10,62 +10,67 @@ class Config():
         }
 
     DEFAULT_VALUE = 255
-    CHANNELS = [25, 26, 27, 22, 23, 24, 19, 20, 21, 16] # order of DMX channels
+    CHANNELS = [25, 26, 27, 22, 23, 24, 19, 20, 21, 16, 17, 18] # order of DMX channels
     LIGHTING_SEQUENCE = [
         {
-            'dmx_levels': [255, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            'dmx_levels': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'dmx_transition': 1,
-            'end_time': 5.0
+            'end_time': 68
         },
         {
-            'dmx_levels': [0, 255, 0, 0, 0, 0, 0, 0, 0, 0],
+            'dmx_levels': [255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'dmx_transition': 1,
-            'end_time': 10.0
+            'end_time': 92
         },
         {
-            'dmx_levels': [0, 0, 255, 0, 0, 0, 0, 0, 0, 0],
+            'dmx_levels': [0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'dmx_transition': 1,
-            'end_time': 15.0
+            'end_time': 120
         },
         {
-            'dmx_levels': [0, 0, 0, 255, 0, 0, 0, 0, 0, 0],
+            'dmx_levels': [0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'dmx_transition': 1,
-            'end_time': 20.0
+            'end_time': 140
         },
         {
-            'dmx_levels': [0, 0, 0, 0, 255, 0, 0, 0, 0, 0],
+            'dmx_levels': [0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0],
             'dmx_transition': 1,
-            'end_time': 25.0
+            'end_time': 162
         },
         {
-            'dmx_levels': [0, 0, 0, 0, 0, 255, 0, 0, 0, 0],
+            'dmx_levels': [0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0],
             'dmx_transition': 1,
-            'end_time': 30.0
+            'end_time': 192
         },
         {
-            'dmx_levels': [0, 0, 0, 0, 0, 0, 255, 0, 0, 0],
+            'dmx_levels': [0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0],
             'dmx_transition': 1,
-            'end_time': 35.0
+            'end_time': 256
         },
         {
-            'dmx_levels': [0, 0, 0, 0, 0, 0, 0, 255, 0, 0],
+            'dmx_levels': [0, 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0],
             'dmx_transition': 1,
-            'end_time': 40.0
+            'end_time': 290
         },
         {
-            'dmx_levels': [0, 0, 0, 0, 0, 0, 0, 0, 255, 0],
+            'dmx_levels': [0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 0, 0],
             'dmx_transition': 1,
-            'end_time': 45.0
+            'end_time': 318
         },
         {
-            'dmx_levels': [0, 0, 0, 0, 0, 0, 0, 0, 0, 255],
+            'dmx_levels': [0, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 0],
             'dmx_transition': 1,
-            'end_time': 50.0
+            'end_time': 330
+        },
+        {
+            'dmx_levels': [0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0],
+            'dmx_transition': 1,
+            'end_time': 360
         },
         {
             # end
-            'dmx_levels': [255, 255, 255, 255, 255, 255, 255, 255, 255, 255],
+            'dmx_levels': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'dmx_transition': 1,
-            'end_time': 55.0
+            'end_time': 381
         }
     ]
