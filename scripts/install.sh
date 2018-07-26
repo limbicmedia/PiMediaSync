@@ -26,6 +26,10 @@ chmod u+x /root/mini-world-sawmill-display/sawmill.py
 # SystemD Setup
 systemctl enable /root/mini-world-sawmill-display/scripts/sawmill.service
 
+# Display Setup
+echo "hdmi_force_hotplug=1" >> /boot/config.txt # HDMI mode even if no HDMI monitor is detected
+echo "hdmi_drive=2" >> /boot/config.txt # normal HDMI mode
+echo "hdmi_mode=16" >> /boot/config.txt # Always 1080p HDMI output
 
 if [ -z "$DEBUG" ]; then 
     # set log directory to be TMPFS;
