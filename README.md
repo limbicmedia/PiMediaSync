@@ -9,26 +9,14 @@ wget -O - https://raw.githubusercontent.com/limbicmedia/mini-world-sawmill-displ
 
 This will install all the necessary requirements (including downloading this git repo)
 
-## Wiring
-The button wiring is based on [this guide](https://raspberrypihq.com/use-a-push-button-with-raspberry-pi-gpio/).
+## System Diagram
+Below is an image showing the architecture of the system:
+<br>
+<img src="docs/system_diagram.png" width="332" height="668">
 
-This diagram shows how it is wired:
-
-![button wiring](https://raspberrypihq.com/wp-content/uploads/2018/02/02_Push-button_bb-min.jpg)
-
-## HDMI
-### Always On
-Based on [this](https://raspberrypi.stackexchange.com/questions/2169/how-do-i-force-the-raspberry-pi-to-turn-on-hdmi) post:
-HDMI should always be active. In `/boot/config` add:
-```
-hdmi_force_hotplug=1
-hdmi_drive=2
-```
-hdmi_force_hotplug=1 sets the Raspbmc to use HDMI mode even if no HDMI monitor is detected. hdmi_drive=2 sets the Raspbmc to normal HDMI mode (Sound will be sent if supported and enabled). Without this line, the Raspbmc would switch to DVI (with no audio) mode by default
-
-### Always 1080p
-Base on [this](https://raspberrypi.stackexchange.com/questions/10017/hdmi-output-for-1080p)
-Modify `/boot/config.txt` to have:
-```
-hdmi_mode=16
-```
+## Button Wiring
+The button for starting the installtion is wired as show below:
+<br>
+<img src="docs/rpi_button.png" width="100%">
+<br>
+This wiring results in the code to check for a **FALLING** edge of on GPIO15 (pin 10) to activate the installation. The *1K* resistor acts as a *Pull Up* resistor and the *1µF* capacitor helps reduce noise in the system.
