@@ -26,7 +26,6 @@ chmod u+x /root/mini-world-sawmill-display/sawmill.py
 # SystemD Setup
 systemctl enable /root/mini-world-sawmill-display/scripts/sawmill.service
 
-# install alsa default file for audio levels?
 
 if [ -z "$DEBUG" ]; then 
     # set log directory to be TMPFS;
