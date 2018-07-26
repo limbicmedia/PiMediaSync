@@ -64,7 +64,7 @@ if __name__ == "__main__":
     omxDmxThread = omxdmx.OmxDmx(buttonEvent, killEvent, Config)
     
     buttonSetup(Config.GPIO_VALUES['pin'], Config.GPIO_VALUES['pull_up_down'], 
-        buttonEvent, bouncetime=100)
+        buttonEvent, bouncetime=Config.GPIO_VALUES['bouncetime'])
 
     try:
         omxDmxThread.start()

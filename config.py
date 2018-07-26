@@ -7,6 +7,7 @@ class Config():
     GPIO_VALUES = {
         'pin': 10,
         'pull_up_down': GPIO.PUD_DOWN
+        'bouncetime': 100
         }
 
     DEFAULT_VALUE = 255
