@@ -17,62 +17,62 @@ class Config():
         {
             'dmx_levels': [22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 0, 0],
             'dmx_transition': 1,
-            'end_time': 66
+            'end_time': 65
         },
         {
             'dmx_levels': [255, 22, 22, 22, 22, 22, 22, 22, 22, 22, 0, 0],
             'dmx_transition': 1,
-            'end_time': 99
+            'end_time': 98
         },
         {
             'dmx_levels': [22, 255, 22, 22, 22, 22, 22, 22, 22, 22, 0, 0],
             'dmx_transition': 1,
-            'end_time': 118
+            'end_time': 117
         },
         {
             'dmx_levels': [22, 22, 255, 22, 22, 22, 22, 22, 22, 22, 0, 0],
             'dmx_transition': 1,
-            'end_time': 138
+            'end_time': 137
         },
         {
             'dmx_levels': [22, 22, 22, 255, 22, 22, 22, 22, 22, 22, 0, 0],
             'dmx_transition': 1,
-            'end_time': 160
+            'end_time': 159
         },
         {
             'dmx_levels': [22, 22, 22, 22, 255, 22, 22, 22, 22, 22, 0, 0],
             'dmx_transition': 1,
-            'end_time': 190
+            'end_time': 189
         },
         {
             'dmx_levels': [22, 22, 22, 22, 22, 255, 22, 22, 22, 22, 0, 0],
             'dmx_transition': 1,
-            'end_time': 254
+            'end_time': 253
         },
         {
             'dmx_levels': [22, 22, 22, 22, 22, 22, 255, 22, 22, 22, 0, 0],
             'dmx_transition': 1,
-            'end_time': 288
+            'end_time': 287
         },
         {
             'dmx_levels': [22, 22, 22, 22, 22, 22, 22, 255, 22, 22, 0, 0],
             'dmx_transition': 1,
-            'end_time': 316
+            'end_time': 315
         },
         {
             'dmx_levels': [22, 22, 22, 22, 22, 22, 22, 22, 255, 22, 0, 0],
             'dmx_transition': 1,
-            'end_time': 328
+            'end_time': 327
         },
         {
             'dmx_levels': [22, 22, 22, 22, 22, 22, 22, 22, 22, 255, 0, 0],
             'dmx_transition': 1,
-            'end_time': 358
+            'end_time': 357
         },
         {
             # end
             'dmx_levels': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'dmx_transition': 1,
-            'end_time': 381
+            'end_time': 372
         }
     ]
