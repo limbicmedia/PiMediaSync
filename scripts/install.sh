@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 if [ "$(whoami)" != "root" ]; then
     echo "must be run as root."
     exit 1
@@ -12,7 +13,14 @@ echo "Setting HOSTNAME to $PIHOSTNAME"
 echo "$PIHOSTNAME" > /etc/hostname
 
 apt-get update
-apt-get install -y git vim python3 python3-pip omxplayer
+apt-get install --no-install-recommends -y \
+    git \
+    vim \
+    omxplayer \
+    python3 \
+    python3-pip \
+    python3-dbus \
+    python3-setuptools
 apt-get clean
 
 # pySimpleDMX
@@ -35,3 +43,4 @@ if [ -z "$DEBUG" ]; then
     # set log directory to be TMPFS;
     echo "tmpfs    /var/log    tmpfs    defaults,noatime,nosuid,mode=0755,size=100m    0    0" >> /etc/fstab
 fi
+set +e
