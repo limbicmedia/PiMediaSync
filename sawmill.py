@@ -3,7 +3,6 @@ import argparse
 from time import sleep
 import logging
 from threading import Event
-import buttonhandler
 import omxdmx
 from config import Config
 import RPi.GPIO as GPIO
@@ -30,10 +29,7 @@ def buttonSetup(pin, pull_up_down, event, bouncetime=10):
     GPIO.setup(pin, GPIO.IN, pull_up_down=pull_up_down)
 
     buttoncb = lambda threadChannel, event=event: buttonCallback(event) # hack to get args into button function
-    buttonHandlerCb = buttonhandler.ButtonHandler(
-        pin, buttoncb, edge='falling', bouncetime=bouncetime)
-    buttonHandlerCb.start()
-    GPIO.add_event_detect(pin, GPIO.FALLING, callback=buttonHandlerCb)
+    GPIO.add_event_detect(pin, GPIO.FALLING, callback=buttoncb)
 
 
 if __name__ == "__main__":
