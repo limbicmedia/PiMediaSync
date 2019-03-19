@@ -20,7 +20,7 @@ class dmxMock(pysimpledmx.DMXConnection):
         self.logger.info("Duration: {}".format(duration))
 
 class OmxDmx(Thread):
-    def __init__(self, buttonEvent, killEvent, Config):
+    def __init__(self, buttonEvent, killEvent, numChannels, Config):
         super().__init__()
         self.logger = logging.getLogger("omxdmx")
         self.buttonEvent = buttonEvent
@@ -33,7 +33,7 @@ class OmxDmx(Thread):
         self.playing = False
 
         try:
-            self.dmx = pysimpledmx.DMXConnection(Config.DMX_DEVICE, softfail=True)
+            self.dmx = pysimpledmx.DMXConnection(Config.DMX_DEVICE, softfail=True, numChannels=numChannels)
         except Exception as e:
             self.logger.exception("DMX device failure, creating mock device")
             self.dmx = dmxMock()
@@ -137,7 +137,9 @@ class OmxDmx(Thread):
         
         while True:
             try:
+                print("hiding video")
                 player.hide_video()
+                print("pausing video")
                 player.pause()
                 break
             except Exception as e:

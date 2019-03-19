@@ -57,7 +57,8 @@ if __name__ == "__main__":
 
     killEvent = Event()
     buttonEvent = Event()
-    omxDmxThread = omxdmx.OmxDmx(buttonEvent, killEvent, Config)
+    num_channels = max(Config.CHANNELS) + 1
+    omxDmxThread = omxdmx.OmxDmx(buttonEvent, killEvent, num_channels, Config)
     
     buttonSetup(Config.GPIO_VALUES['pin'], Config.GPIO_VALUES['pull_up_down'], 
         buttonEvent)

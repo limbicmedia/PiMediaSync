@@ -25,7 +25,8 @@ apt-get clean
 
 # pySimpleDMX
 # `pip3 install pysimpledmx` does not install working version
-pip3 install git+https://github.com/limbicmedia/pySimpleDMX.git
+PYSIMPLEDMX_VERSION="v0.2.0"
+pip3 install git+https://github.com/limbicmedia/pySimpleDMX.git@${PYSIMPLEDMX_VERSION}
 
 git clone https://github.com/limbicmedia/mini-world-sawmill-display
 pip3 install -r /root/mini-world-sawmill-display/requirements.txt
