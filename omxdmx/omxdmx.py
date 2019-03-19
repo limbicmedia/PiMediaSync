@@ -1,8 +1,12 @@
+import sys, os
 from threading import Event, Thread
 import logging
 from time import sleep
 from omxplayer.player import OMXPlayer, OMXPlayerDeadError
 import pysimpledmx
+
+# neeeded for omxPlayerMock
+import evento
 
 class dmxMock(pysimpledmx.DMXConnection):
     '''
@@ -17,6 +21,65 @@ class dmxMock(pysimpledmx.DMXConnection):
         self.logger.info("Channels and Steps: {}".format(mix))
         self.logger.info("Duration: {}".format(duration))
 
+class omxPlayerMock():
+    '''
+    Mock class for instantiating when a video/audio file is not available
+
+    The idea is to keep all code pertaining to omxPlayer while allowing for instances of
+    OmxDmx without an actual OMXPlayer.
+    '''
+
+    def __init__(self, filename):
+        self.logger = logging.getLogger("omxPlayerMock")
+        self.logger.info("Mock OMXPlayer class initiated")
+
+        ## All events in this step are 
+        self.pauseEvent = evento.event.Event()
+        self.playEvent = evento.event.Event()
+        self.stopEvent = evento.event.Event()
+        self.exitEvent = evento.event.Event()
+        self.seekEvent = evento.event.Event()
+        self.positionEvent = evento.event.Event()
+
+        self.playbackStatus = "Stopped" #("Playing" | "Paused" | "Stopped")
+
+    def hide_video(self):
+        pass
+
+    def pause(self):
+        self.playbackStatus = "Paused"
+        self.pauseEvent(self)
+
+    def play(self):
+        self.playbackStatus = "Playing"
+        self.playEvent(self)
+
+    def position(self):
+        return 0
+
+    def stop(self):
+        self.playbackStatus = "Stopped"
+        self.stopEvent(self)
+
+    def exit(self):
+        self.exitEvent(self)
+
+    def seek(self, val):
+        self.seekEvent(self)
+
+    def playback_status(self):
+        return self.playbackStatus
+
+    def show_video(self):
+        pass
+
+    def duration(self):
+        return (self.position() + 1) # always needs to be greater than position()
+
+    def quit(self):
+        pass
+
+
 class OmxDmx(Thread):
     def __init__(self, buttonEvent, killEvent, numChannels, Config):
         super().__init__()
@@ -24,7 +87,12 @@ class OmxDmx(Thread):
         self.buttonEvent = buttonEvent
         self.killEvent = killEvent
 
-        self.player = self.playerFactory(Config.VIDEONAME, self.logger)
+        try:
+            self.mediafile = Config.VIDEONAME
+        except:
+            self.mediafile = None
+
+        self.player = self.playerFactory(self.mediafile, self.logger)
         self.sequence = Config.LIGHTING_SEQUENCE
 
         self.running = True
@@ -124,11 +192,22 @@ class OmxDmx(Thread):
     def playerFactory(filename, logger):
         '''
         Creates an instance of OMXPlayer the starting state
-        we desire
+        we desire.
+
+        If filename does not exist (or is None), generates a Mock devices
+        with equivalent functionality (but no media output)
         '''
 
-        player = OMXPlayer(filename, 
-                dbus_name='org.mpris.MediaPlayer2.omxplayer1', args=['-b', '-o', 'both'])
+        if filename is not None and not os.path.isfile('filename'):
+            logger.warning("Media file: {} DOES NOT EXIST".format(filename))
+            filename = None # force try to fail quickly below
+
+        try:
+            player = OMXPlayer(filename, 
+                    dbus_name='org.mpris.MediaPlayer2.omxplayer1', args=['-b', '-o', 'both'])
+        except Exception as e:
+            player = omxPlayerMock(filename);
+
         player.playEvent += lambda _: logger.debug("Play")
         player.pauseEvent += lambda _: logger.debug("Pause")
         player.stopEvent += lambda _: logger.debug("Stop")
