@@ -6,12 +6,12 @@ import omxdmx
 import RPi.GPIO as GPIO
 
 def buttonCallback(buttonEvent):
-        '''
-        Simple callback to relay button press to other thread
-        '''
+    '''
+    Simple callback to relay button press to other thread
+    '''
 
-        player_log.debug("Button Pressed")
-        buttonEvent.set()
+    player_log.debug("Button Pressed")
+    buttonEvent.set()
 
 def buttonSetup(pin, pull_up_down, event):
     '''
