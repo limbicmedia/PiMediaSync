@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-import argparse
+import argparse, sys, os, logging
 from time import sleep
-import logging
 from threading import Event
 import omxdmx
-from config import Config
 import RPi.GPIO as GPIO
 
 def buttonCallback(buttonEvent):
@@ -31,6 +29,23 @@ def buttonSetup(pin, pull_up_down, event):
     buttoncb = lambda threadChannel, event=event: buttonCallback(event) # hack to get args into button function
     GPIO.add_event_detect(pin, GPIO.FALLING, callback=buttoncb)
 
+def loadConfig(configLocation, moduleName="Config"):
+    '''
+    Dynamically loads config file as a module.
+    This allows for config files with any filename
+    and location to be loaded.
+    '''
+    config_path, config_file = os.path.split(args.config)
+    config_file = os.path.splitext(config_file)[0]
+
+    # adds config directory to sys.path
+    sys.path.append(config_path)
+
+    # allows specified config file name
+    config = __import__(config_file)
+    Config = getattr(config, moduleName)
+
+    return Config
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -42,9 +57,16 @@ if __name__ == "__main__":
         "--debug",
         help="increase output verbosity",
         action="store_true")
+    parser.add_argument(
+        "-c",
+        "--config",
+        help="set config filename and directory.",
+        default="./config.py")
     args = parser.parse_args()
 
-    # Setup logging
+    Config = loadConfig(args.config)
+
+    ## Setup logging
     if args.debug:
         loglevel = logging.DEBUG
     else:

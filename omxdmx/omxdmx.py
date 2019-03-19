@@ -1,8 +1,6 @@
 from threading import Event, Thread
 import logging
 from time import sleep
-
-from config import Config
 from omxplayer.player import OMXPlayer, OMXPlayerDeadError
 import pysimpledmx
 
@@ -137,9 +135,7 @@ class OmxDmx(Thread):
         
         while True:
             try:
-                print("hiding video")
                 player.hide_video()
-                print("pausing video")
                 player.pause()
                 break
             except Exception as e:
