@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse, sys, os, logging
+import subprocess, signal
 from time import sleep
 from threading import Event
 import omxdmx
@@ -47,6 +48,19 @@ def loadConfig(configLocation, moduleName="Config"):
 
     return Config
 
+def killProcess(processName):
+    '''
+    Kills Linux processes by name
+    '''
+    p = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE)
+    out, err = p.communicate()
+    for line in out.splitlines():
+        if processName in str(line):
+            pid = int(line.split(None, 1)[0])
+            player_log.debug("Rogue process: {0} with PID: {1} found. Killing.".format(processName, pid))
+            os.kill(pid, signal.SIGKILL)
+            player_log.debug("Rogue process: {0} with PID: {1} killed.".format(processName, pid))
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Syncronizes video and dmx lighting \
@@ -76,6 +90,9 @@ if __name__ == "__main__":
         format='%(asctime)s:%(name)s:%(levelname)s:%(message)s', 
         datefmt='%m/%d/%Y %I:%M:%S %p', 
         level=loglevel)
+
+    # removed any leftover omxplayer processes
+    killProcess("omxplayer")
 
     killEvent = Event()
     buttonEvent = Event()
