@@ -92,6 +92,14 @@ class OmxDmx(Thread):
         except:
             self.mediafile = None
 
+        # Automatically start and restart after end of sequence
+        try:
+            self.autorepeat = Config.AUTOREPEAT
+        except:
+            self.autorepeat = False
+        if self.autorepeat:
+            self.buttonEvent.set()
+
         self.player = self.playerFactory(self.mediafile, self.logger)
         self.sequence = Config.LIGHTING_SEQUENCE
 
@@ -107,7 +115,8 @@ class OmxDmx(Thread):
         # turn all lights on at start
         self.dmxChannels = Config.CHANNELS
         self.dmxDefaultVals = [Config.DEFAULT_VALUE] * len(self.dmxChannels)
-        self.dmx.ramp(self.dmxChannels, self.dmxDefaultVals, 1)
+        self.default_transition_t = Config.DEFAULT_TRANSITION_TIME
+        self.dmx.ramp(self.dmxChannels, self.dmxDefaultVals, self.default_transition_t)
 
     def run(self):
         '''
@@ -158,12 +167,15 @@ class OmxDmx(Thread):
                         self.killThread()
                         break
                 
-                self.dmx.ramp(self.dmxChannels, self.dmxDefaultVals, 1)
+                self.dmx.ramp(self.dmxChannels, self.dmxDefaultVals, self.default_transition_t)
                 
                 self.buttonEvent.clear()
                 self.player.pause()
                 self.player.hide_video()
                 self.playing = False
+                
+                if self.autorepeat:
+                    self.buttonEvent.set()
 
         self.player.quit()
 

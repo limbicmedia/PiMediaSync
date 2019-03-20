@@ -94,26 +94,61 @@ if __name__ == "__main__":
     # removed any leftover omxplayer processes
     killProcess("omxplayer")
 
-    killEvent = Event()
     buttonEvent = Event()
+
+    omxKillEvent = Event()
     num_channels = max(Config.CHANNELS) + 1
-    omxDmxThread = omxdmx.OmxDmx(buttonEvent, killEvent, num_channels, Config)
-    
-    buttonSetup(Config.GPIO_VALUES['pin'], Config.GPIO_VALUES['pull_up_down'], 
-        buttonEvent)
+    omxDmxThread = omxdmx.OmxDmx(buttonEvent, omxKillEvent, num_channels, Config)
+
+    hasActivationInput = False
+
+    # Attempt to setup "Virtual" Button on timer
+    schedulerKillEvent = Event()
+    try:
+        # if Config.SCHEDULER_TIME does not exist, this will fail nicely
+        schedule_t = Config.SCHEDULER_TIME
+        scheduledButton = omxdmx.RepeatScheduler(schedule_t, schedulerKillEvent, 
+            callback=lambda event=buttonEvent: buttonCallback(event))
+        scheduledButton.start()
+        hasActivationInput = True
+    except Exception as e:
+        player_log.exception(e)
+        pass
+
+    # Attempt to setup user input (button)
+    try:
+        # if Config.GPIO_VALUES does not exist, this will fail nicely
+        gpio_values = Config.GPIO_VALUES
+        buttonSetup(Config.GPIO_VALUES['pin'], 
+            Config.GPIO_VALUES['pull_up_down'], 
+            buttonEvent)
+    except Exception as e:
+        player_log.exception(e)
+        pass
+
+    # check for AUTOREPEAT Config:
+    try:
+        autorepeat = Config.AUTOREPEAT
+    except:
+        autorepeat = False
+
+    if not hasActivationInput and not autorepeat :
+        player_log.info("No user input--button or timer--set and AUTOREPEAT is False. Program will sit and do nothing.")
 
     try:
         omxDmxThread.start()
         omxDmxThread.join()
     except KeyboardInterrupt as e:
         player_log.exception("KeyboardInterrupt")
-        killEvent.set()
+        schedulerKillEvent.set()
+        omxKillEvent.set()
         while(omxDmxThread.isAlive()):
             player_log.debug("waiting for thread to quit")
             sleep(1)
     except SystemExit as e:
         player_log.exception("SystemExit")
-        killEvent.set()
+        schedulerKillEvent.set()
+        omxKillEvent.set()
         while(omxDmxThread.isAlive()):
             player_log.debug("waiting for thread to quit")
             sleep(1)
