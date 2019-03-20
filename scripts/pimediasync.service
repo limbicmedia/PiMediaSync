@@ -6,8 +6,8 @@ After=multi-user.target
 Type=simple
 Restart=always
 RestartSec=3
-WorkingDirectory=/root/mini-world-sawmill-display
-ExecStart=/usr/bin/python3 sawmill.py
+WorkingDirectory=/opt/PyMediaSync
+ExecStart=/usr/bin/python3 app.py
 
 [Install]
 WantedBy=multi-user.target

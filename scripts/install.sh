@@ -5,10 +5,10 @@ if [ "$(whoami)" != "root" ]; then
     exit 1
 fi
 
-HOMEDIR="${HOMEDIR:-/root}"
+HOMEDIR="${HOMEDIR:-/opt}"
 cd $HOMEDIR
 
-PIHOSTNAME="${PIHOSTNAME:-miniworld-sawmill}"
+PIHOSTNAME="${PIHOSTNAME:-pimediasync}"
 echo "Setting HOSTNAME to $PIHOSTNAME"
 echo "$PIHOSTNAME" > /etc/hostname
 
@@ -28,12 +28,12 @@ apt-get clean
 PYSIMPLEDMX_VERSION="v0.2.0"
 pip3 install git+https://github.com/limbicmedia/pySimpleDMX.git@${PYSIMPLEDMX_VERSION}
 
-git clone https://github.com/limbicmedia/mini-world-sawmill-display
-pip3 install -r /root/mini-world-sawmill-display/requirements.txt
-chmod u+x /root/mini-world-sawmill-display/sawmill.py
+git clone https://github.com/limbicmedia/pimediasync
+pip3 install -r ${HOMEDIR}/PiMediaSync/requirements.txt
+chmod u+x ${HOMEDIR}/PiMediaSync/app.py
 
 # SystemD Setup
-systemctl enable /root/mini-world-sawmill-display/scripts/sawmill.service
+systemctl enable ${HOMEDIR}/PiMediaSync/scripts/pimediasync.service
 
 # Display Setup
 echo "hdmi_force_hotplug=1" >> /boot/config.txt # HDMI mode even if no HDMI monitor is detected
