@@ -100,7 +100,7 @@ if __name__ == "__main__":
     num_channels = max(Config.CHANNELS) + 1
     omxDmxThread = omxdmx.OmxDmx(buttonEvent, omxKillEvent, num_channels, Config)
 
-    hasActivationInput = False
+    hasButtonInput = False
 
     # Attempt to setup "Virtual" Button on timer
     schedulerKillEvent = Event()
@@ -111,6 +111,7 @@ if __name__ == "__main__":
             callback=lambda event=buttonEvent: buttonCallback(event))
         scheduledButton.start()
         hasActivationInput = True
+        player_log.info("Scheduler enabled with {} second timer.".format(schedule_t))
     except Exception as e:
         player_log.exception(e)
         pass
@@ -119,9 +120,11 @@ if __name__ == "__main__":
     try:
         # if Config.GPIO_VALUES does not exist, this will fail nicely
         gpio_values = Config.GPIO_VALUES
-        buttonSetup(Config.GPIO_VALUES['pin'], 
-            Config.GPIO_VALUES['pull_up_down'], 
+        buttonSetup(gpio_values['pin'], 
+            gpio_values['pull_up_down'], 
             buttonEvent)
+        hasActivationInput = True
+        player_log.info("Button enabled on pin {}.".format(gpio_values['pin']))
     except Exception as e:
         player_log.exception(e)
         pass
@@ -132,7 +135,7 @@ if __name__ == "__main__":
     except:
         autorepeat = False
 
-    if not hasActivationInput and not autorepeat :
+    if not hasActivationInput and not autorepeat:
         player_log.info("No user input--button or timer--set and AUTOREPEAT is False. Program will sit and do nothing.")
 
     try:

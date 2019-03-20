@@ -210,7 +210,7 @@ class OmxDmx(Thread):
         with equivalent functionality (but no media output)
         '''
 
-        if filename is not None and not os.path.isfile('filename'):
+        if filename is not None and not os.path.isfile(filename):
             logger.warning("Media file: {} DOES NOT EXIST".format(filename))
             filename = None # force try to fail quickly below
 

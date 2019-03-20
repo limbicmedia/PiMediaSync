@@ -1,4 +1,13 @@
-# Miniature World Sawmill Exhibit
+# PiMediaSync
+
+## About
+`PiMediaSync` is a small Python application designed for running synchronized audio/video and lighting on a Raspberry Pi.
+
+This application was originally designed for use at [Miniature World](https://miniatureworld.com/) for a variety of permanent displays. This software should be capable of handling any museum or gallery installation requiring ongoing displays of audio/video and/or DMX lighting.
+
+The application has support for user interface (button activation), scheduled activation, and automatic sequencing (media and lighting sequence loop).
+
+The application is designed to run from a `systemd` service at boot, with all application functionality configured with a config file (see `config.py` for example config setup).
 
 ## Install
 ### Step 1 - Install Raspbian operating system

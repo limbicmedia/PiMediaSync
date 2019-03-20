@@ -6,8 +6,10 @@ After=multi-user.target
 Type=simple
 Restart=always
 RestartSec=3
-WorkingDirectory=/opt/PyMediaSync
-ExecStart=/usr/bin/python3 app.py
+WorkingDirectory=/opt/pimediasync
+EnvironmentFile=/etc/pimediasync.conf
+ExecStart=/usr/bin/python3 app.py $APPLICATION_FLAGS
+
 
 [Install]
 WantedBy=multi-user.target
