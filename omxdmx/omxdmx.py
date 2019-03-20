@@ -221,3 +221,42 @@ class OmxDmx(Thread):
                 logger.exception("Exception in playerFactory")
                 sys.exit(1)
         return player
+
+class RepeatScheduler(Thread):
+    '''
+    RepeatScheduler is a threaded scheduler for excuting a callback on a repeated interval
+    '''
+    def __init__(self, repeatTime, killEvent, callback=None, callbackArgs=()):
+        Thread.__init__(self)
+        self.logger = logging.getLogger("RepeatScheduler")
+        self.logger.info("RepeatScheduler activated with callback: {}".format(callback))
+        
+        self.killEvent = killEvent
+        self.repeatTime = repeatTime
+        self.callback = callback
+        self.callbackArgs = callbackArgs
+
+    def run(self):
+        while not self.killEvent.wait(self.repeatTime):
+            self.logger.debug("RepeatScheduler ran after waiting for {} seconds".format(self.repeatTime))
+            if self.callback is not None:
+                self.callback(*self.callbackArgs)
+        self.logger.debug("Thread exiting.")
+
+if __name__ == '__main__':
+    def increase_press_count():
+        global COUNT
+        COUNT += 1
+        print("RepeatScheduler count: {}".format(COUNT))
+
+    repeatTime = .1 # 1 second delay between 
+    killEvent = Event()
+    COUNT = 0
+
+    t = RepeatScheduler(repeatTime, killEvent, callback=increase_press_count)
+    t.start()
+    
+    while(COUNT < 5):
+        sleep(repeatTime)
+    
+    killEvent.set()
