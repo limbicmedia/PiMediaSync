@@ -1,4 +1,5 @@
-import sys, os
+import sys
+import os
 from threading import Event, Thread
 import logging
 from time import sleep
@@ -8,6 +9,7 @@ import pysimpledmx
 # neeeded for omxPlayerMock
 import evento
 
+
 class dmxMock(pysimpledmx.DMXConnection):
     '''
     Used when actual DMX serial device is unavailable
@@ -15,25 +17,26 @@ class dmxMock(pysimpledmx.DMXConnection):
     def __init__(self):
         self.logger = logging.getLogger("dmxMock")
         self.logger.info("Mock DMX class initiated")
+
     def ramp(self, channels, steps, duration):
         self.logger.info("Mock DMX ramp method")
         mix = list(zip(channels, steps))
         self.logger.info("Channels and Steps: {}".format(mix))
         self.logger.info("Duration: {}".format(duration))
 
+
 class omxPlayerMock():
     '''
     Mock class for instantiating when a video/audio file is not available
 
-    The idea is to keep all code pertaining to omxPlayer while allowing for instances of
-    OmxDmx without an actual OMXPlayer.
+    The idea is to keep all code pertaining to omxPlayer while allowing
+    for instances of OmxDmx without an actual OMXPlayer.
     '''
 
     def __init__(self, filename):
         self.logger = logging.getLogger("omxPlayerMock")
         self.logger.info("Mock OMXPlayer class initiated")
 
-        ## All events in this step are 
         self.pauseEvent = evento.event.Event()
         self.playEvent = evento.event.Event()
         self.stopEvent = evento.event.Event()
@@ -41,7 +44,7 @@ class omxPlayerMock():
         self.seekEvent = evento.event.Event()
         self.positionEvent = evento.event.Event()
 
-        self.playbackStatus = "Stopped" #("Playing" | "Paused" | "Stopped")
+        self.playbackStatus = "Stopped"  # ("Playing" | "Paused" | "Stopped")
 
     def hide_video(self):
         pass
@@ -74,62 +77,72 @@ class omxPlayerMock():
         pass
 
     def duration(self):
-        return (self.position() + 1) # always needs to be greater than position()
+        return (self.position() + 1)  # always greater than position()
 
     def quit(self):
         pass
 
 
 class OmxDmx(Thread):
-    def __init__(self, buttonEvent, killEvent, numChannels, Config):
+    def __init__(self, buttonEvent, killEvent, mediafile=None, dmxDevice="/dev/null", autorepeat=False, dmxChannels=[1], dmxDefaultVals=255, defaultTransition_t=0, sequence=[]):
         super().__init__()
         self.logger = logging.getLogger("omxdmx")
         self.buttonEvent = buttonEvent
         self.killEvent = killEvent
 
-        try:
-            self.mediafile = Config.VIDEONAME
-        except:
-            self.mediafile = None
+        self.mediafile = mediafile
+
+        self.player = self.playerFactory(self.mediafile, self.logger)
 
         # Automatically start and restart after end of sequence
-        try:
-            self.autorepeat = Config.AUTOREPEAT
-        except:
-            self.autorepeat = False
+        self.autorepeat = autorepeat
         if self.autorepeat:
             self.buttonEvent.set()
 
-        self.player = self.playerFactory(self.mediafile, self.logger)
-        self.sequence = Config.LIGHTING_SEQUENCE
+        self.dmxChannels = dmxChannels
 
-        self.running = True
-        self.playing = False
+        self.dmxDefaultVals = dmxDefaultVals
+        self.dmxDefaultVals = [self.dmxDefaultVals] * len(self.dmxChannels)
 
+        self.defaultTransition_t = defaultTransition_t
+
+        self.sequence = sequence
+        if not len(self.sequence):
+            self.sequence.append({
+                'dmx_levels': self.dmxDefaultVals,
+                'dmx_transition': self.defaultTransition_t,
+                'end_time': self.player.duration()
+                })
+
+        # setup DMX device
+        self.numChannels = len(self.dmxChannels) + 1
         try:
-            self.dmx = pysimpledmx.DMXConnection(Config.DMX_DEVICE, softfail=True, numChannels=numChannels)
+            self.dmx = pysimpledmx.DMXConnection(dmxDevice,
+                softfail=True, numChannels=self.numChannels)
         except Exception as e:
             self.logger.exception("DMX device failure, creating mock device")
             self.dmx = dmxMock()
 
-        # turn all lights on at start
-        self.dmxChannels = Config.CHANNELS
-        self.dmxDefaultVals = [Config.DEFAULT_VALUE] * len(self.dmxChannels)
-        self.default_transition_t = Config.DEFAULT_TRANSITION_TIME
-        self.dmx.ramp(self.dmxChannels, self.dmxDefaultVals, self.default_transition_t)
+        self.dmx.ramp(self.dmxChannels,
+                self.dmxDefaultVals,
+                self.defaultTransition_t)
+
+        # set state before run
+        self.running = True
+        self.playing = False
 
     def run(self):
         '''
         Main video playing function.
         Will run until KeyboardInterrupt or catastrophic failure.
         '''
-        
+
         self.logger.debug("Waiting for video")
         while self.running:
             if(self.buttonEvent.is_set()):
                 self.playing = True
                 self.logger.debug("Starting Video")
-            
+
             if(self.killEvent.is_set()):
                 self.killThread()
                 break
@@ -153,6 +166,7 @@ class OmxDmx(Thread):
                     # OMXPlayer exits if the whole video plays.
                     self.logger.debug("player at position: {}".format(self.player.position()))
                     if(self.player.position() > (self.player.duration() - 1)):
+                        self.logger.warning("Media file is shorter than LIGHTING_SEQUENCE. Stopping video to keep application alive.")
                         self.player.pause()
                         self.player.hide_video()
                         self.playing = False
@@ -166,14 +180,16 @@ class OmxDmx(Thread):
                     if(self.killEvent.wait(sleeptime)):
                         self.killThread()
                         break
-                
-                self.dmx.ramp(self.dmxChannels, self.dmxDefaultVals, self.default_transition_t)
-                
+
+                self.dmx.ramp(self.dmxChannels,
+                    self.dmxDefaultVals,
+                    self.defaultTransition_t)
+
                 self.buttonEvent.clear()
                 self.player.pause()
                 self.player.hide_video()
                 self.playing = False
-                
+
                 if self.autorepeat:
                     self.buttonEvent.set()
 
@@ -194,7 +210,7 @@ class OmxDmx(Thread):
         Could extend omxplayer class...
         '''
 
-        self.player.seek(-(self.player.position() + .5)) # player to "beginning"
+        self.player.seek(-(self.player.position() + .5))  # player to "beginning"
         sleep(.1)
         self.player.play()
         sleep(.5)
@@ -215,7 +231,7 @@ class OmxDmx(Thread):
             filename = None # force try to fail quickly below
 
         try:
-            player = OMXPlayer(filename, 
+            player = OMXPlayer(filename,
                     dbus_name='org.mpris.MediaPlayer2.omxplayer1', args=['-b', '-o', 'both'])
         except Exception as e:
             player = omxPlayerMock(filename);
@@ -223,7 +239,7 @@ class OmxDmx(Thread):
         player.playEvent += lambda _: logger.debug("Play")
         player.pauseEvent += lambda _: logger.debug("Pause")
         player.stopEvent += lambda _: logger.debug("Stop")
-        
+
         while True:
             try:
                 player.hide_video()
@@ -234,15 +250,18 @@ class OmxDmx(Thread):
                 sys.exit(1)
         return player
 
+
 class RepeatScheduler(Thread):
     '''
-    RepeatScheduler is a threaded scheduler for excuting a callback on a repeated interval
+    RepeatScheduler is a threaded scheduler for excuting a callback on a
+    repeated interval
     '''
     def __init__(self, repeatTime, killEvent, callback=None, callbackArgs=()):
         Thread.__init__(self)
         self.logger = logging.getLogger("RepeatScheduler")
-        self.logger.info("RepeatScheduler activated with callback: {}".format(callback))
-        
+        self.logger.info("RepeatScheduler activated with \
+            callback: {}".format(callback))
+
         self.killEvent = killEvent
         self.repeatTime = repeatTime
         self.callback = callback
@@ -250,10 +269,12 @@ class RepeatScheduler(Thread):
 
     def run(self):
         while not self.killEvent.wait(self.repeatTime):
-            self.logger.debug("RepeatScheduler ran after waiting for {} seconds".format(self.repeatTime))
+            self.logger.debug("RepeatScheduler ran after waiting \
+                for {} seconds".format(self.repeatTime))
             if self.callback is not None:
                 self.callback(*self.callbackArgs)
         self.logger.debug("Thread exiting.")
+
 
 if __name__ == '__main__':
     def increase_press_count():
@@ -261,14 +282,14 @@ if __name__ == '__main__':
         COUNT += 1
         print("RepeatScheduler count: {}".format(COUNT))
 
-    repeatTime = .1 # 1 second delay between 
+    repeatTime = .1 # 1 second delay between
     killEvent = Event()
     COUNT = 0
 
     t = RepeatScheduler(repeatTime, killEvent, callback=increase_press_count)
     t.start()
-    
+
     while(COUNT < 5):
         sleep(repeatTime)
-    
+
     killEvent.set()

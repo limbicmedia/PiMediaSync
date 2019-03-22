@@ -6,6 +6,9 @@ from threading import Event
 import omxdmx
 import RPi.GPIO as GPIO
 
+from flask.config import Config as fConfig
+import default_config
+
 def buttonCallback(buttonEvent):
     '''
     Simple callback to relay button press to other thread
@@ -30,24 +33,6 @@ def buttonSetup(pin, pull_up_down, event):
     buttoncb = lambda threadChannel, event=event: buttonCallback(event) # hack to get args into button function
     GPIO.add_event_detect(pin, GPIO.FALLING, callback=buttoncb)
 
-def loadConfig(configLocation, moduleName="Config"):
-    '''
-    Dynamically loads config file as a module.
-    This allows for config files with any filename
-    and location to be loaded.
-    '''
-    config_path, config_file = os.path.split(args.config)
-    config_file = os.path.splitext(config_file)[0]
-
-    # adds config directory to sys.path
-    sys.path.append(config_path)
-
-    # allows specified config file name
-    config = __import__(config_file)
-    Config = getattr(config, moduleName)
-
-    return Config
-
 def killProcess(processName):
     '''
     Kills Linux processes by name
@@ -60,6 +45,7 @@ def killProcess(processName):
             player_log.debug("Rogue process: {0} with PID: {1} found. Killing.".format(processName, pid))
             os.kill(pid, signal.SIGKILL)
             player_log.debug("Rogue process: {0} with PID: {1} killed.".format(processName, pid))
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -74,13 +60,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "-c",
         "--config",
-        help="set config filename and directory.",
-        default="./config.py")
+        help="set config filename and directory.")
     args = parser.parse_args()
 
-    Config = loadConfig(args.config)
-
-    ## Setup logging
+    # Setup logging
     if args.debug:
         loglevel = logging.DEBUG
     else:
@@ -91,52 +74,66 @@ if __name__ == "__main__":
         datefmt='%m/%d/%Y %I:%M:%S %p', 
         level=loglevel)
 
+    # generate application config
+    config = fConfig("./")
+    config.from_object(default_config.Config)  # load defaults
+
+    # would try to import with `from_pyfile()` but doesn't work for this format 
+    if(args.config):
+        directory, module_name = os.path.split(args.config)
+        module_name = os.path.splitext(module_name)[0]
+        path = list(sys.path)
+        sys.path.insert(0, directory)
+        
+        try:
+            module = __import__(module_name)
+            config.from_object(module.Config)
+        finally:
+            sys.path[:] = path # restore
+
     # removed any leftover omxplayer processes
     killProcess("omxplayer")
 
     buttonEvent = Event()
-
     omxKillEvent = Event()
-    num_channels = max(Config.CHANNELS) + 1
-    omxDmxThread = omxdmx.OmxDmx(buttonEvent, omxKillEvent, num_channels, Config)
 
-    hasButtonInput = False
+    # flag for informing if application can ever activate
+    hasActivationInput = False
 
-    # Attempt to setup "Virtual" Button on timer
-    schedulerKillEvent = Event()
-    try:
-        # if Config.SCHEDULER_TIME does not exist, this will fail nicely
-        schedule_t = Config.SCHEDULER_TIME
-        scheduledButton = omxdmx.RepeatScheduler(schedule_t, schedulerKillEvent, 
+    # attempt setup of "virtual" button on timer
+    schedulerKillEvent = Event()  # used later, even if not connected
+    schedule_t = config['SCHEDULER_TIME']
+    if (schedule_t > 0):
+        scheduledButton = omxdmx.RepeatScheduler(schedule_t, schedulerKillEvent,
             callback=lambda event=buttonEvent: buttonCallback(event))
         scheduledButton.start()
         hasActivationInput = True
         player_log.info("Scheduler enabled with {} second timer.".format(schedule_t))
-    except Exception as e:
-        player_log.exception(e)
-        pass
+    else:
+        player_log.info("Scheduler disabled because SCHEDULER_TIME set to {}.".format(schedule_t))
 
     # Attempt to setup user input (button)
-    try:
-        # if Config.GPIO_VALUES does not exist, this will fail nicely
-        gpio_values = Config.GPIO_VALUES
-        buttonSetup(gpio_values['pin'], 
-            gpio_values['pull_up_down'], 
+    gpio_values = config['GPIO_VALUES']
+    if gpio_values['pin'] and gpio_values['pull_up_down']:
+        buttonSetup(gpio_values['pin'],
+            gpio_values['pull_up_down'],
             buttonEvent)
         hasActivationInput = True
         player_log.info("Button enabled on pin {}.".format(gpio_values['pin']))
-    except Exception as e:
-        player_log.exception(e)
-        pass
+    else:
+        player_log.info("Button not enabled.".format())
 
-    # check for AUTOREPEAT Config:
-    try:
-        autorepeat = Config.AUTOREPEAT
-    except:
-        autorepeat = False
-
-    if not hasActivationInput and not autorepeat:
+    if not hasActivationInput and not config['AUTOREPEAT']:
         player_log.info("No user input--button or timer--set and AUTOREPEAT is False. Program will sit and do nothing.")
+
+    omxDmxThread = omxdmx.OmxDmx(buttonEvent, omxKillEvent,
+                        mediafile=config['VIDEONAME'],
+                        autorepeat=config['AUTOREPEAT'],
+                        dmxDevice=config["DMX_DEVICE"],
+                        dmxChannels=config['CHANNELS'],
+                        dmxDefaultVals=config['DEFAULT_VALUE'],
+                        defaultTransition_t=config['DEFAULT_TRANSITION_TIME'],
+                        sequence=config['LIGHTING_SEQUENCE'])
 
     try:
         omxDmxThread.start()
