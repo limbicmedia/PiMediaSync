@@ -5,7 +5,7 @@ class Config():
 
     # OPTIONAL; location and filename of mediafile for playing (uses OMXPlayer to play). 
     # If none provided (or incorrect provided), creates fake virtual device
-    VIDEONAME = None
+    MEDIA_NAME = None
 
     # OPTIONAL; Enttec serial device for DMX output. 
     # If none provided (or incorrect provided), creates fake virtual device

@@ -83,15 +83,15 @@ The desired video should be copied onto the Raspberry PI. The video can have any
 /root/mini-world-sawmill-display/video
 ```
 
-Once the file is copied over, the  `config.py` (located at `/root/mini-world-sawmill-display`) must be modified such that the `VIDEONAME` variable points to the directory and filename of the video. For example, the original value for this variable is:
+Once the file is copied over, the  `config.py` (located at `/root/mini-world-sawmill-display`) must be modified such that the `MEDIA_NAME` variable points to the directory and filename of the video. For example, the original value for this variable is:
 
 ```
-VIDEONAME = "./video/sawmill.mov"
+MEDIA_NAME = "./video/sawmill.mov"
 ```
 
 In this case, the video is called `sawmill.mov` and it is located--relatively to the starting point of the Python program--in a directory called `video`.
 
-**Note**: When setting `VIDEONAME` it would be best to set the value with an **ABSOLUTE** file path, e.g. `/home/pi/myvideo.mov`.
+**Note**: When setting `MEDIA_NAME` it would be best to set the value with an **ABSOLUTE** file path, e.g. `/home/pi/myvideo.mov`.
 
 
 ## System Diagram

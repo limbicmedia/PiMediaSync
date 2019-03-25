@@ -127,7 +127,7 @@ if __name__ == "__main__":
         player_log.info("No user input--button or timer--set and AUTOREPEAT is False. Program will sit and do nothing.")
 
     omxDmxThread = omxdmx.OmxDmx(buttonEvent, omxKillEvent,
-                        mediafile=config['VIDEONAME'],
+                        mediafile=config['MEDIA_NAME'],
                         autorepeat=config['AUTOREPEAT'],
                         dmxDevice=config["DMX_DEVICE"],
                         dmxChannels=config['CHANNELS'],
