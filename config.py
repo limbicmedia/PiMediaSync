@@ -1,6 +1,6 @@
 import RPi.GPIO as GPIO
 
-class Config():
+class Config(object):
     '''
     Example Config file for use in MediaSync application
     '''
