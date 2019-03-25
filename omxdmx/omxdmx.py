@@ -115,7 +115,7 @@ class OmxDmx(Thread):
                 })
 
         # setup DMX device
-        self.numChannels = len(self.dmxChannels) + 1
+        self.numChannels = max(self.dmxChannels) + 1
         try:
             self.dmx = pysimpledmx.DMXConnection(dmxDevice,
                 softfail=True, numChannels=self.numChannels)
