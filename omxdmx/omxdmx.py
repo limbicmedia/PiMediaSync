@@ -10,7 +10,7 @@ import pysimpledmx
 import evento
 
 # globals
-END_DURATION_OFFSET = -.1  # if no SEQUENCE defined, this variable sets how far from the end of the media file to automatically stop playing
+END_DURATION_OFFSET = .25  # if no SEQUENCE defined, this variable sets how far from the end of the media file to automatically stop playing
 
 class dmxMock(pysimpledmx.DMXConnection):
     '''
@@ -113,7 +113,7 @@ class OmxDmx(Thread):
             self.sequence.append({
                 'dmx_levels': self.dmxDefaultVals,
                 'dmx_transition': self.defaultTransition_t,
-                'end_time': self.player.duration() + END_DURATION_OFFSET
+                'end_time': self.player.duration() - END_DURATION_OFFSET
                 })
 
         # setup DMX device
@@ -167,7 +167,9 @@ class OmxDmx(Thread):
 
                     # OMXPlayer exits if the whole video plays.
                     self.logger.debug("player at position: {}".format(self.player.position()))
-                    if(self.player.position() > (self.player.duration() - 1)):
+
+                    end_check = (self.player.duration() - steps['end_time'])
+                    if((self.player.duration() - steps['end_time']) < END_DURATION_OFFSET):
                         self.logger.warning("Media file is shorter than LIGHTING_SEQUENCE. Stopping video to keep application alive.")
                         self.player.pause()
                         self.player.hide_video()
