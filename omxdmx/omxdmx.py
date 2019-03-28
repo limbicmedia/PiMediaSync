@@ -9,6 +9,8 @@ import pysimpledmx
 # neeeded for omxPlayerMock
 import evento
 
+# globals
+END_DURATION_OFFSET = -.1  # if no SEQUENCE defined, this variable sets how far from the end of the media file to automatically stop playing
 
 class dmxMock(pysimpledmx.DMXConnection):
     '''
@@ -111,7 +113,7 @@ class OmxDmx(Thread):
             self.sequence.append({
                 'dmx_levels': self.dmxDefaultVals,
                 'dmx_transition': self.defaultTransition_t,
-                'end_time': self.player.duration()
+                'end_time': self.player.duration() + END_DURATION_OFFSET
                 })
 
         # setup DMX device
