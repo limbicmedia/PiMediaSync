@@ -123,12 +123,22 @@ if __name__ == "__main__":
     else:
         player_log.info("Button not enabled.".format())
 
-    if not hasActivationInput and not config['AUTOREPEAT']:
+
+    # check for AUTOREPEAT in config OR AUTOREPEAT toggle switch
+    autorepeat = config['AUTOREPEAT']
+    if (config['AUTOREPEAT_TOGGLE']['gpio_pin']):
+        channel = config['AUTOREPEAT_TOGGLE']['gpio_pin']
+        GPIO.setwarnings(False) # Ignore warning for now
+        GPIO.setmode(GPIO.BOARD) # Use physical pin numbering
+        GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        autorepeat = GPIO.input(channel) # read toggle ONCE and set to start
+
+    if not hasActivationInput and not autorepeat:
         player_log.info("No user input--button or timer--set and AUTOREPEAT is False. Program will sit and do nothing.")
 
     omxDmxThread = omxdmx.OmxDmx(buttonEvent, omxKillEvent,
                         mediafile=config['MEDIA_NAME'],
-                        autorepeat=config['AUTOREPEAT'],
+                        autorepeat=autorepeat,
                         dmxDevice=config["DMX_DEVICE"],
                         dmxChannels=config['CHANNELS'],
                         dmxDefaultVals=config['DEFAULT_VALUE'],
