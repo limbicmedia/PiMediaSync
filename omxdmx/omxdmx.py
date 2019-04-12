@@ -79,7 +79,7 @@ class omxPlayerMock():
         pass
 
     def duration(self):
-        return (self.position() + 1)  # always greater than position()
+        return (sys.maxsize)
 
     def quit(self):
         pass
