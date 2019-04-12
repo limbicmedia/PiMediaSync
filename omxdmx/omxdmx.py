@@ -3,6 +3,7 @@ import os
 from threading import Event, Thread
 import logging
 from time import sleep
+from datetime import datetime
 from omxplayer.player import OMXPlayer, OMXPlayerDeadError
 import pysimpledmx
 
@@ -47,6 +48,7 @@ class omxPlayerMock():
         self.positionEvent = evento.event.Event()
 
         self.playbackStatus = "Stopped"  # ("Playing" | "Paused" | "Stopped")
+        self.start_time = datetime.utcnow() # keep track of when mock system started "playing"
 
     def hide_video(self):
         pass
@@ -57,10 +59,11 @@ class omxPlayerMock():
 
     def play(self):
         self.playbackStatus = "Playing"
+        self.start_time = datetime.utcnow()
         self.playEvent(self)
 
     def position(self):
-        return 0
+        return float((datetime.utcnow() - self.start_time).total_seconds())
 
     def stop(self):
         self.playbackStatus = "Stopped"
@@ -79,7 +82,7 @@ class omxPlayerMock():
         pass
 
     def duration(self):
-        return (sys.maxsize)
+        return (sys.maxsize)  # always greater than position()
 
     def quit(self):
         pass
