@@ -60,10 +60,13 @@ class omxPlayerMock():
     def play(self):
         self.playbackStatus = "Playing"
         self.start_time = datetime.utcnow()
+        self.logger.debug("start_time = {0}".format(self.start_time.timestamp()))
         self.playEvent(self)
 
     def position(self):
-        return float((datetime.utcnow() - self.start_time).total_seconds())
+        current_position = float((datetime.utcnow() - self.start_time).total_seconds())
+        self.logger.debug("current_position = {0}".format(current_position))
+        return current_position
 
     def stop(self):
         self.playbackStatus = "Stopped"
@@ -106,10 +109,10 @@ class OmxDmx(Thread):
 
         self.dmxChannels = dmxChannels
 
-        self.dmxDefaultVals = dmxDefaultVals
-        self.dmxDefaultVals = [self.dmxDefaultVals] * len(self.dmxChannels)
+        self.dmxDefaultVals = [dmxDefaultVals] * len(self.dmxChannels)
 
         self.defaultTransition_t = defaultTransition_t
+        self.isDefault = False
 
         self.sequence = sequence
         if not len(self.sequence):
@@ -131,6 +134,7 @@ class OmxDmx(Thread):
         self.dmx.ramp(self.dmxChannels,
                 self.dmxDefaultVals,
                 self.defaultTransition_t)
+        self.DMXisDefault = True
 
         # set state before run
         self.running = True
@@ -147,6 +151,13 @@ class OmxDmx(Thread):
             if(self.buttonEvent.is_set()):
                 self.playing = True
                 self.logger.debug("Starting Video")
+            elif not self.DMXisDefault:
+                # if "button" is not pressed, go to default
+                self.dmx.ramp(self.dmxChannels,
+                    self.dmxDefaultVals,
+                    self.defaultTransition_t)
+                self.DMXisDefault = True
+                self.logger.debug("Button not pushed, setting lights to default values")
 
             if(self.killEvent.is_set()):
                 self.killThread()
@@ -188,10 +199,7 @@ class OmxDmx(Thread):
                         self.killThread()
                         break
 
-                self.dmx.ramp(self.dmxChannels,
-                    self.dmxDefaultVals,
-                    self.defaultTransition_t)
-
+                self.DMXisDefault = False
                 self.buttonEvent.clear()
                 self.player.pause()
                 self.player.hide_video()

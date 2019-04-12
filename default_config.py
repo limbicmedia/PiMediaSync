@@ -20,6 +20,9 @@ class Config():
     SCHEDULER_TIME = 0  # OPTIONAL; causes automatic start of sequence via scheduled "virtual" button press
 
     AUTOREPEAT = False  # OPTIONAL; True causes automatic start and repeat of media sequence. Defaults to False if not defined
+    AUTOREPEAT_TOGGLE = { # OPTIONAL; Adds a gpio pin to read a toggle switch on startup to enable/disable AUTOREPEAT. NOTE: overrides AUTOREPEAT variable above
+        'gpio_pin': None
+    }
 
     DEFAULT_VALUE = 255  # REQUIRED; the default value of ALL DMX channels at start.
     DEFAULT_TRANSITION_TIME = 0  # REQUIRED; the default transition time at beginning and end of sequence (bookends LIGHTING_SEQUENCE below)
