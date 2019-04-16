@@ -109,7 +109,12 @@ class OmxDmx(Thread):
 
         self.dmxChannels = dmxChannels
 
-        self.dmxDefaultVals = [dmxDefaultVals] * len(self.dmxChannels)
+        if(type(dmxDefaultVals) == type(list())):
+            self.dmxDefaultVals = dmxDefaultVals
+        else:
+            self.dmxDefaultVals = [dmxDefaultVals] * len(self.dmxChannels)
+        self.dmxDefaultVals += [0] * (len(self.dmxChannels)-len(self.dmxDefaultVals))  # extend if too short
+        self.dmxDefaultVals = self.dmxDefaultVals[:len(self.dmxChannels)] # cut if too long
 
         self.defaultTransition_t = defaultTransition_t
         self.isDefault = False
