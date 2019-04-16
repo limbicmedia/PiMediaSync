@@ -15,6 +15,7 @@ class Config():
     AUTOREPEAT=False # auto repeat disabled
 
     DEFAULT_VALUE = 255 # DMX lights start/stop on brightness of 255
+    # DEFAULT_VALUE = [255, 0, 255] # also allowed; will set length of list automatically if less than length of CHANNELS (below)
     DEFAULT_TRANSITION_TIME = 1 # DMX lights start/stop with transition time of 1 second
     CHANNELS = [1, 4, 3, 2, 5] # DMX light channel mapping order -- notice they can be any order
     LIGHTING_SEQUENCE = [
