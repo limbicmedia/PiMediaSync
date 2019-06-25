@@ -7,7 +7,7 @@ from datetime import datetime
 from omxplayer.player import OMXPlayer, OMXPlayerDeadError
 import pysimpledmx
 
-# neeeded for omxPlayerMock
+# neeeded for omxPlayerFake
 import evento
 
 # globals
@@ -28,7 +28,7 @@ class dmxFake(pysimpledmx.DMXConnection):
         self.logger.info("Duration: {}".format(duration))
 
 
-class omxPlayerMock():
+class omxPlayerFake():
     '''
     Mock class for instantiating when a video/audio file is not available
 
@@ -37,7 +37,7 @@ class omxPlayerMock():
     '''
 
     def __init__(self, filename):
-        self.logger = logging.getLogger("omxPlayerMock")
+        self.logger = logging.getLogger("omxPlayerFake")
         self.logger.info("Mock OMXPlayer class initiated")
 
         self.pauseEvent = evento.event.Event()
@@ -254,7 +254,7 @@ class OmxDmx(Thread):
             player = OMXPlayer(filename,
                     dbus_name='org.mpris.MediaPlayer2.omxplayer1', args=['-b', '-o', 'both'])
         except Exception as e:
-            player = omxPlayerMock(filename);
+            player = omxPlayerFake(filename);
 
         player.playEvent += lambda _: logger.debug("Play")
         player.pauseEvent += lambda _: logger.debug("Pause")
