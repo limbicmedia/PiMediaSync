@@ -13,12 +13,12 @@ import evento
 # globals
 END_DURATION_OFFSET = .25  # if no SEQUENCE defined, this variable sets how far from the end of the media file to automatically stop playing
 
-class dmxMock(pysimpledmx.DMXConnection):
+class dmxFake(pysimpledmx.DMXConnection):
     '''
     Used when actual DMX serial device is unavailable
     '''
     def __init__(self):
-        self.logger = logging.getLogger("dmxMock")
+        self.logger = logging.getLogger("dmxFake")
         self.logger.info("Mock DMX class initiated")
 
     def ramp(self, channels, steps, duration):
@@ -134,7 +134,7 @@ class OmxDmx(Thread):
                 softfail=True, numChannels=self.numChannels)
         except Exception as e:
             self.logger.exception("DMX device failure, creating mock device")
-            self.dmx = dmxMock()
+            self.dmx = dmxFake()
 
         self.dmx.ramp(self.dmxChannels,
                 self.dmxDefaultVals,
