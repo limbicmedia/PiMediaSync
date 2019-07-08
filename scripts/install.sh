@@ -52,7 +52,7 @@ fi
 chmod +x ${WORKDIR}/app.py
 
 # install python requirements
-PYSIMPLEDMX_VERSION="v0.2.1"
+PYSIMPLEDMX_VERSION="v0.2.0"
 pip3 install git+https://github.com/limbicmedia/pySimpleDMX.git@${PYSIMPLEDMX_VERSION} # `pip3 install pysimpledmx` does not install working version
 pip3 install -r ${WORKDIR}/requirements.txt
 
